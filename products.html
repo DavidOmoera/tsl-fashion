@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TSL - Products</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js"></script>
+</head>
+<body>
+    <div class="cursor"></div>
+    <div class="cursor-follower"></div>
+
+    <nav>
+        <div class="nav-container">
+            <a href="index.html" class="logo">TSL</a>
+            <ul class="nav-links">
+                <li><a href="7garbs.html">7GARBS</a></li>
+                <li><a href="products.html">PRODUCTS</a></li>
+                <li><a href="collections.html">COLLECTIONS</a></li>
+                <li><a href="about.html">ABOUT</a></li>
+                <li><a href="contact.html">CONTACT</a></li>
+                <li><a href="#cart">CART (<span id="cart-count">0</span>)</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="products">
+        <h2 class="section-title fade-in">ALL PRODUCTS</h2>
+        <div class="product-grid" id="product-grid"></div>
+    </section>
+
+    <section id="cart" class="featured">
+        <h2 class="section-title fade-in">YOUR CART</h2>
+        <div class="featured-content">
+            <div class="featured-text fade-in" id="cart-items">
+                <p>Your cart is empty.</p>
+            </div>
+            <div class="featured-image fade-in">
+                <div style="padding: 30px; width: 100%;">
+                    <h3 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 20px; color: #00ff88;">CART SUMMARY</h3>
+                    <p>Total Items: <span id="cart-total-items">0</span></p>
+                    <p>Total Price: $<span id="cart-total-price">0.00</span></p>
+                    <button class="add-to-cart" id="checkout-button">CHECKOUT</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>PRODUCTS</h3>
+                <ul>
+                    <li><a href="products.html">New Arrivals</a></li>
+                    <li><a href="products.html">Best Sellers</a></li>
+                    <li><a href="products.html">Sale Items</a></li>
+                    <li><a href="products.html">Accessories</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>SUPPORT</h3>
+                <ul>
+                    <li><a href="contact.html">Size Guide</a></li>
+                    <li><a href="contact.html">Shipping Info</a></li>
+                    <li><a href="contact.html">Returns</a></li>
+                    <li><a href="contact.html">Contact Us</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>COMPANY</h3>
+                <ul>
+                    <li><a href="about.html">About TSL</a></li>
+                    <li><a href="about.html">Careers</a></li>
+                    <li><a href="about.html">Press</a></li>
+                    <li><a href="about.html">Sustainability</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>CONNECT</h3>
+                <ul>
+                    <li><a href="https://instagram.com">Instagram</a></li>
+                    <li><a href="https://twitter.com">Twitter</a></li>
+                    <li><a href="https://facebook.com">Facebook</a></li>
+                    <li><a href="https://youtube.com">YouTube</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2025 TSL. All rights reserved. | Redefining Fashion, One Thread at a Time.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Firebase Configuration (Replace with your Firebase project config)
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // Fetch and display products
+        const productGrid = document.getElementById('product-grid');
+        async function loadProducts() {
+            try {
+                const querySnapshot = await db.collection('products').get();
+                productGrid.innerHTML = '';
+                querySnapshot.forEach(doc => {
+                    const product = doc.data();
+                    const productCard = `
+                        <div class="product-card fade-in">
+                            <div class="product-image">${product.image}</div>
+                            <div class="product-info">
+                                <h3 class="product-title">${product.title}</h3>
+                                <p class="product-description">${product.description}</p>
+                                <div class="product-price">$${product.price.toFixed(2)}</div>
+                                <button class="add-to-cart" data-id="${doc.id}" data-title="${product.title}" data-price="${product.price}">ADD TO CART</button>
+                            </div>
+                        </div>`;
+                    productGrid.innerHTML += productCard;
+                });
+                // Re-attach event listeners for new buttons
+                attachCartListeners();
+            } catch (error) {
+                console.error('Error loading products:', error);
+            }
+        }
+
+        // Cart functionality
+        const cartItemsContainer = document.getElementById('cart-items');
+        const cartCount = document.getElementById('cart-count');
+        const cartTotalItems = document.getElementById('cart-total-items');
+        const cartTotalPrice = document.getElementById('cart-total-price');
+        const checkoutButton = document.getElementById('checkout-button');
+
+        async function loadCart() {
+            try {
+                const querySnapshot = await db.collection('cart').get();
+                let items = [];
+                let totalPrice = 0;
+                let totalItems = 0;
+                querySnapshot.forEach(doc => {
+                    const item = doc.data();
+                    items.push({ id: doc.id, ...item });
+                    totalPrice += item.price * item.quantity;
+                    totalItems += item.quantity;
+                });
+
+                if (items.length === 0) {
+                    cartItemsContainer.innerHTML = '<p>Your cart is empty.</p>';
+                } else {
+                    cartItemsContainer.innerHTML = items.map(item => `
+                        <div class="cart-item">
+                            <h3>${item.title}</h3>
+                            <p>Quantity: ${item.quantity}</p>
+                            <p>Price: $${(item.price * item.quantity).toFixed(2)}</p>
+                        </div>
+                    `).join('');
+                }
+                cartCount.textContent = totalItems;
+                cartTotalItems.textContent = totalItems;
+                cartTotalPrice.textContent = totalPrice.toFixed(2);
+            } catch (error) {
+                console.error('Error loading cart:', error);
+            }
+        }
+
+        function attachCartListeners() {
+            document.querySelectorAll('.add-to-cart').forEach(button => {
+                button.addEventListener('click', async function() {
+                    const productId = this.getAttribute('data-id');
+                    const title = this.getAttribute('data-title');
+                    const price = parseFloat(this.getAttribute('data-price'));
+
+                    // Visual feedback
+                    this.style.transform = 'scale(0.95)';
+                    this.textContent = 'ADDED!';
+                    this.style.background = 'linear-gradient(45deg, #00ff88, #00ff88)';
+
+                    setTimeout(() => {
+                        this.style.transform = 'scale(1)';
+                        this.textContent = 'ADD TO CART';
+                        this.style.background = 'linear-gradient(45deg, #00ff88, #0088ff)';
+                    }, 1000);
+
+                    try {
+                        // Check if item exists in cart
+                        const cartRef = db.collection('cart').doc(productId);
+                        const doc = await cartRef.get();
+                        if (doc.exists) {
+                            await cartRef.update({
+                                quantity: firebase.firestore.FieldValue.increment(1)
+                            });
+                        } else {
+                            await cartRef.set({
+                                title: title,
+                                price: price,
+                                quantity: 1
+                            });
+                        }
+                        await loadCart();
+                    } catch (error) {
+                        console.error('Error adding to cart:', error);
+                    }
+                });
+            });
+        }
+
+        checkoutButton.addEventListener('click', async () => {
+            alert('Checkout functionality not implemented. This is a demo.');
+            // In a real app, this would redirect to a payment gateway
+        });
+
+        // Load products and cart on page load
+        loadProducts();
+        loadCart();
+
+        // Include existing script.js for other interactions
+    </script>
+    <script src="script.js"></script>
+</body>
+</html>
