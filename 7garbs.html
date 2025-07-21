@@ -1,27 +1,55 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TSL - 7GARBS</title>
     <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
     <div class="cursor"></div>
     <div class="cursor-follower"></div>
 
     <nav>
         <div class="nav-container">
-            <a href="index.html" class="logo">TSL</a>
-            <ul class="nav-links">
-                <li><a href="7garbs.html">7GARBS</a></li>
-                <li><a href="products.html">PRODUCTS</a></li>
-                <li><a href="collections.html">COLLECTIONS</a></li>
-                <li><a href="about.html">ABOUT</a></li>
-                <li><a href="contact.html">CONTACT</a></li>
-            </ul>
+          <a href="index.html" class="logo">TSL</a>
+          <div class="country-selector">
+            <img id="country-flag" src="https://flagcdn.com/16x12/ng.png" alt="Country Flag">
+            <select id="country-select">
+                <option value="NG">Nigeria</option>
+                <option value="US">United States</option>
+                <option value="GB">United Kingdom</option>
+                <option value="CA">Canada</option>
+                <option value="AU">Australia</option>
+                <option value="FR">France</option>
+                <option value="DE">Germany</option>
+                <option value="JP">Japan</option>
+                <option value="CN">China</option>
+                <option value="BR">Brazil</option>
+                <option value="IN">India</option>
+                <option value="ZA">South Africa</option>
+                <option value="MX">Mexico</option>
+                <option value="ES">Spain</option>
+                <option value="IT">Italy</option>
+              </select>
+          </div>
+          <div class="menu-toggle">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+          <ul class="nav-links">
+            <li><a href="7garbs.html">7GARBS</a></li>
+            <li><a href="products.html">PRODUCTS</a></li>
+            <li><a href="collections.html">COLLECTIONS</a></li>
+            <li><a href="about.html">ABOUT</a></li>
+            <li><a href="contact.html">CONTACT</a></li>
+            <li><a href="#cart">CART (<span id="cart-count">0</span>)</a></li>
+          </ul>
         </div>
-    </nav>
+      </nav>
 
     <section id="home" class="hero">
         <div class="hero-bg">
@@ -44,7 +72,8 @@
                 <div class="product-image">Urban Pulse Shoot</div>
                 <div class="product-info">
                     <h3 class="product-title">URBAN PULSE</h3>
-                    <p class="product-description">Capturing the vibrant energy of city life with bold streetwear aesthetics.</p>
+                    <p class="product-description">Capturing the vibrant energy of city life with bold streetwear
+                        aesthetics.</p>
                 </div>
             </div>
             <div class="product-card fade-in">
@@ -76,7 +105,8 @@
                 </div>
                 <div class="product-info">
                     <h3 class="product-title">URBAN PULSE BTS</h3>
-                    <p class="product-description">A glimpse into the creative process behind our Urban Pulse photoshoot.</p>
+                    <p class="product-description">A glimpse into the creative process behind our Urban Pulse
+                        photoshoot.</p>
                 </div>
             </div>
             <div class="product-card fade-in">
@@ -88,7 +118,8 @@
                 </div>
                 <div class="product-info">
                     <h3 class="product-title">TECH TREND BTS</h3>
-                    <p class="product-description">Behind-the-scenes footage of our innovative Tech Trend collection shoot.</p>
+                    <p class="product-description">Behind-the-scenes footage of our innovative Tech Trend collection
+                        shoot.</p>
                 </div>
             </div>
         </div>
@@ -101,7 +132,8 @@
                 <div class="product-image">Urban Pulse Outfit</div>
                 <div class="product-info">
                     <h3 class="product-title">URBAN PULSE SET</h3>
-                    <p class="product-description">Complete streetwear look with Quantum Hoodie and Matrix Cargo pants.</p>
+                    <p class="product-description">Complete streetwear look with Quantum Hoodie and Matrix Cargo pants.
+                    </p>
                     <div class="product-price">$169.98</div>
                     <button class="add-to-cart">ADD TO CART</button>
                 </div>
@@ -134,7 +166,8 @@
                 <div class="product-image">Team Member 1</div>
                 <div class="product-info">
                     <h3 class="product-title">JANE DOE</h3>
-                    <p class="product-description">Creative Director - Leading the vision behind TSL's innovative designs.</p>
+                    <p class="product-description">Creative Director - Leading the vision behind TSL's innovative
+                        designs.</p>
                 </div>
             </div>
             <div class="product-card fade-in">
@@ -160,15 +193,20 @@
             <div class="featured-text fade-in">
                 <h2>GET IN TOUCH</h2>
                 <p>Reach out to our team for collaborations, inquiries, or support.</p>
-                <p>Email: team@tslfashion.com<br>Phone: +1 (555) 987-6543<br>Address: 123 Fashion Ave, New York, NY 10001</p>
+                <p>Email: team@tslfashion.com<br>Phone: +1 (555) 987-6543<br>Address: 123 Fashion Ave, New York, NY
+                    10001</p>
             </div>
             <div class="featured-image fade-in">
                 <div style="padding: 30px; width: 100%;">
-                    <h3 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 20px; color: #00ff88;">SEND A MESSAGE</h3>
+                    <h3 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 20px; color: #00ff88;">SEND A MESSAGE
+                    </h3>
                     <div style="display: flex; flex-direction: column; gap: 20px;">
-                        <input type="text" placeholder="Name" style="padding: 15px; background: rgba(20, 20, 20, 0.8); border: 1px solid rgba(0, 255, 136, 0.3); border-radius: 10px; color: #fff; font-size: 1rem;">
-                        <input type="email" placeholder="Email" style="padding: 15px; background: rgba(20, 20, 20, 0.8); border: 1px solid rgba(0, 255, 136, 0.3); border-radius: 10px; color: #fff; font-size: 1rem;">
-                        <textarea placeholder="Message" style="padding: 15px; background: rgba(20, 20, 20, 0.8); border: 1px solid rgba(0, 255, 136, 0.3); border-radius: 10px; color: #fff; font-size: 1rem; min-height: 150px;"></textarea>
+                        <input type="text" placeholder="Name"
+                            style="padding: 15px; background: rgba(20, 20, 20, 0.8); border: 1px solid rgba(0, 255, 136, 0.3); border-radius: 10px; color: #fff; font-size: 1rem;">
+                        <input type="email" placeholder="Email"
+                            style="padding: 15px; background: rgba(20, 20, 20, 0.8); border: 1px solid rgba(0, 255, 136, 0.3); border-radius: 10px; color: #fff; font-size: 1rem;">
+                        <textarea placeholder="Message"
+                            style="padding: 15px; background: rgba(20, 20, 20, 0.8); border: 1px solid rgba(0, 255, 136, 0.3); border-radius: 10px; color: #fff; font-size: 1rem; min-height: 150px;"></textarea>
                         <button class="add-to-cart">SUBMIT</button>
                     </div>
                 </div>
@@ -222,4 +260,5 @@
 
     <script src="script.js"></script>
 </body>
+
 </html>

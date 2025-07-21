@@ -1,4 +1,3 @@
-// Custom Cursor
 const cursor = document.querySelector('.cursor');
 const cursorFollower = document.querySelector('.cursor-follower');
 
@@ -10,8 +9,7 @@ document.addEventListener('mousemove', (e) => {
     cursorFollower.style.top = e.clientY + 'px';
 });
 
-// Cursor hover effects
-document.querySelectorAll('a, button').forEach(el => {
+document.querySelectorAll('a:not(.exclude-cursor-scale), button:not(.exclude-cursor-scale)').forEach(el => {
     el.addEventListener('mouseenter', () => {
         cursor.style.transform = 'scale(1.5)';
         cursorFollower.style.transform = 'scale(1.5)';
@@ -23,7 +21,6 @@ document.querySelectorAll('a, button').forEach(el => {
     });
 });
 
-// Smooth scrolling
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
         e.preventDefault();
@@ -37,7 +34,6 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     });
 });
 
-// Scroll animations
 const observerOptions = {
     threshold: 0.1,
     rootMargin: '0px 0px -50px 0px'
@@ -55,7 +51,6 @@ document.querySelectorAll('.fade-in').forEach(el => {
     observer.observe(el);
 });
 
-// Product card interactions
 document.querySelectorAll('.product-card').forEach(card => {
     card.addEventListener('mouseenter', () => {
         card.style.transform = 'translateY(-10px) rotateX(5deg) scale(1.02)';
@@ -66,28 +61,6 @@ document.querySelectorAll('.product-card').forEach(card => {
     });
 });
 
-// Add to cart functionality
-document.querySelectorAll('.add-to-cart').forEach(button => {
-    button.addEventListener('click', function(e) {
-        e.preventDefault();
-        
-        // Visual feedback
-        this.style.transform = 'scale(0.95)';
-        this.textContent = 'ADDED!';
-        this.style.background = 'linear-gradient(45deg, #00ff88, #00ff88)';
-        
-        setTimeout(() => {
-            this.style.transform = 'scale(1)';
-            this.textContent = 'ADD TO CART';
-            this.style.background = 'linear-gradient(45deg, #00ff88, #0088ff)';
-        }, 1000);
-        
-        // In a real app, this would add to cart
-        console.log('Product added to cart!');
-    });
-});
-
-// Parallax effect for floating shapes
 window.addEventListener('scroll', () => {
     const scrolled = window.pageYOffset;
     const shapes = document.querySelectorAll('.floating-shape');
@@ -98,7 +71,6 @@ window.addEventListener('scroll', () => {
     });
 });
 
-// Dynamic background pattern
 let animationId;
 function animateBackground() {
     const time = Date.now() * 0.001;
@@ -115,7 +87,6 @@ function animateBackground() {
 
 animateBackground();
 
-// Navbar scroll effect
 window.addEventListener('scroll', () => {
     const nav = document.querySelector('nav');
     if (window.scrollY > 100) {
@@ -126,3 +97,123 @@ window.addEventListener('scroll', () => {
         nav.style.borderBottom = '1px solid rgba(0, 255, 136, 0.1)';
     }
 });
+
+const menuToggle = document.querySelector('.menu-toggle');
+const navLinks = document.querySelector('.nav-links');
+
+menuToggle.addEventListener('click', () => {
+    navLinks.classList.toggle('active');
+});
+
+const countryNames = {
+    NG: 'Nigeria',
+    US: 'United States',
+    GB: 'United Kingdom',
+    CA: 'Canada',
+    AU: 'Australia',
+    FR: 'France',
+    DE: 'Germany',
+    JP: 'Japan',
+    CN: 'China',
+    BR: 'Brazil',
+    IN: 'India',
+    ZA: 'South Africa',
+    MX: 'Mexico',
+    ES: 'Spain',
+    IT: 'Italy'
+};
+
+async function detectCountry() {
+    try {
+        // Clear localStorage on page reload to force re-detection
+        if (performance.navigation.type === 1) { // 1 = Reload
+            localStorage.removeItem('selectedCountry');
+        }
+        const savedCountry = localStorage.getItem('selectedCountry');
+        if (savedCountry && countryNames[savedCountry]) {
+            updateCountryFlag(savedCountry);
+            document.getElementById('country-select').value = savedCountry;
+        } else {
+            const response = await fetch('https://ipapi.co/json/');
+            const data = await response.json();
+            const countryCode = data.country_code || 'NG';
+            localStorage.setItem('selectedCountry', countryCode);
+            updateCountryFlag(countryCode);
+            document.getElementById('country-select').value = countryCode;
+        }
+    } catch (error) {
+        console.error('Error detecting country:', error);
+        localStorage.setItem('selectedCountry', 'NG');
+        updateCountryFlag('NG');
+        document.getElementById('country-select').value = 'NG';
+    }
+}
+
+function updateCountryFlag(countryCode) {
+    const flagImg = document.getElementById('country-flag');
+    flagImg.src = `https://flagcdn.com/24x18/${countryCode.toLowerCase()}.png`;
+    flagImg.alt = `${countryNames[countryCode] || countryCode} Flag`;
+}
+
+document.getElementById('country-select').addEventListener('change', (e) => {
+    const countryCode = e.target.value;
+    localStorage.setItem('selectedCountry', countryCode);
+    updateCountryFlag(countryCode);
+    console.log('Selected country:', countryNames[countryCode]);
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+    detectCountry();
+    firebase.auth().onAuthStateChanged((user) => {
+        const userEmail = document.getElementById('user-email');
+        const loginButton = document.getElementById('login-button');
+        const logoutButton = document.getElementById('logout-button');
+        if (user) {
+            if (userEmail) userEmail.textContent = user.email || user.displayName;
+            if (loginButton) loginButton.style.display = 'none';
+            if (logoutButton) logoutButton.style.display = 'inline-block';
+        } else {
+            if (userEmail) userEmail.textContent = '';
+            if (loginButton) loginButton.style.display = 'inline-block';
+            if (logoutButton) logoutButton.style.display = 'none';
+        }
+    });
+});
+
+document.querySelectorAll('.add-to-cart').forEach(button => {
+    button.addEventListener('click', function(e) {
+        e.preventDefault();
+        if (!firebase.auth().currentUser) {
+            localStorage.setItem('redirectAfterLogin', window.location.pathname);
+            window.location.href = 'login.html';
+            return;
+        }
+        this.style.transform = 'scale(0.95)';
+        this.textContent = 'ADDED!';
+        this.style.background = 'linear-gradient(45deg, #00ff88, #00ff88)';
+        setTimeout(() => {
+            this.style.transform = 'scale(1)';
+            this.textContent = 'ADD TO CART';
+            this.style.background = 'linear-gradient(45deg, #00ff88, #0088ff)';
+        }, 1000);
+    });
+});
+
+if (document.getElementById('logout-button')) {
+    document.getElementById('logout-button').addEventListener('click', async () => {
+        try {
+            await firebase.auth().signOut();
+            window.location.href = 'index.html';
+        } catch (error) {
+            console.error('Logout error:', error);
+            alert('Logout failed: ' + error.message);
+        }
+    });
+}
+
+if (document.getElementById('login-button')) {
+    document.getElementById('login-button').addEventListener('click', () => {
+        localStorage.setItem('redirectAfterLogin', window.location.pathname);
+        window.location.href = 'login.html';
+    });
+}

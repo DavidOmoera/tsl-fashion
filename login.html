@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TSL - Login</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+  <div class="cursor"></div>
+  <div class="cursor-follower"></div>
+  <nav>
+    <div class="nav-container">
+      <a href="index.html" class="logo">TSL</a>
+      <div class="country-selector">
+        <img id="country-flag" src="https://flagcdn.com/24x18/ng.png" alt="Country Flag">
+        <select id="country-select">
+          <option value="NG">Nigeria</option>
+          <option value="US">United States</option>
+          <option value="GB">United Kingdom</option>
+          <option value="CA">Canada</option>
+          <option value="AU">Australia</option>
+          <option value="FR">France</option>
+          <option value="DE">Germany</option>
+          <option value="JP">Japan</option>
+          <option value="CN">China</option>
+          <option value="BR">Brazil</option>
+          <option value="IN">India</option>
+          <option value="ZA">South Africa</option>
+          <option value="MX">Mexico</option>
+          <option value="ES">Spain</option>
+          <option value="IT">Italy</option>
+        </select>
+      </div>
+      <div class="auth-section">
+        <span id="user-email"></span>
+        <button id="login-button" class="add-to-cart" style="display: none;">LOGIN</button>
+        <button id="logout-button" class="add-to-cart" style="display: none;">LOGOUT</button>
+      </div>
+      <div class="menu-toggle">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+      <ul class="nav-links">
+        <li><a href="7garbs.html">7GARBS</a></li>
+        <li><a href="products.html">PRODUCTS</a></li>
+        <li><a href="collections.html">COLLECTIONS</a></li>
+        <li><a href="about.html">ABOUT</a></li>
+        <li><a href="contact.html">CONTACT</a></li>
+        <li><a href="#cart">CART (<span id="cart-count">0</span>)</a></li>
+      </ul>
+    </div>
+  </nav>
+  <section class="featured">
+    <h2 class="section-title fade-in">LOGIN</h2>
+    <div class="featured-content">
+      <div class="featured-text fade-in">
+        <h2>SIGN IN TO YOUR ACCOUNT</h2>
+        <p>Access your TSL account to continue shopping.</p>
+      </div>
+      <div class="featured-image fade-in">
+        <div style="padding: 30px; width: 100%;">
+          <h3 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 20px; color: #00ff88;">LOGIN</h3>
+          <form id="login-form" style="display: flex; flex-direction: column; gap: 20px;">
+            <input type="email" id="login-email" placeholder="Email" required style="padding: 15px; background: rgba(20, 20, 20, 0.8); border: 1px solid rgba(0, 255, 136, 0.3); border-radius: 10px; color: #fff; font-size: 1rem; z-index: 1; width: 100%; box-sizing: border-box;">
+            <div class="password-container" style="position: relative; width: 100%;">
+              <input type="password" id="login-password" placeholder="Password" required class="exclude-cursor-scale" style="padding: 15px; background: rgba(20, 20, 20, 0.8); border: 1px solid rgba(0, 255, 136, 0.3); border-radius: 10px; color: #fff; font-size: 1rem; z-index: 1; width: 100%; box-sizing: border-box; padding-right: 40px;">
+              <span class="password-toggle-icon" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #fff; z-index: 2;">
+                <i class="fas fa-eye"></i>
+              </span>
+            </div>
+            <button type="submit" class="add-to-cart">SIGN IN</button>
+            <button type="button" id="google-signin" class="add-to-cart" style="background: linear-gradient(45deg, #4285F4, #34A853);">SIGN IN WITH GOOGLE</button>
+            <p style="opacity: 0.7; margin-top: 10px;">Don't have an account? <a href="register.html" class="exclude-cursor-scale" style="color: #00ff88;">Register</a></p>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+  <footer>
+    <div class="footer-content">
+      <div class="footer-section">
+        <h3>PRODUCTS</h3>
+        <ul>
+          <li><a href="products.html">New Arrivals</a></li>
+          <li><a href="products.html">Best Sellers</a></li>
+          <li><a href="products.html">Sale Items</a></li>
+          <li><a href="products.html">Accessories</a></li>
+        </ul>
+      </div>
+      <div class="footer-section">
+        <h3>SUPPORT</h3>
+        <ul>
+          <li><a href="contact.html">Size Guide</a></li>
+          <li><a href="contact.html">Shipping Info</a></li>
+          <li><a href="contact.html">Returns</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+        </ul>
+      </div>
+      <div class="footer-section">
+        <h3>COMPANY</h3>
+        <ul>
+          <li><a href="about.html">About TSL</a></li>
+          <li><a href="about.html">Careers</a></li>
+          <li><a href="about.html">Press</a></li>
+          <li><a href="about.html">Sustainability</a></li>
+        </ul>
+      </div>
+      <div class="footer-section">
+        <h3>CONNECT</h3>
+        <ul>
+          <li><a href="https://instagram.com">Instagram</a></li>
+          <li><a href="https://twitter.com">Twitter</a></li>
+          <li><a href="https://facebook.com">Facebook</a></li>
+          <li><a href="https://youtube.com">YouTube</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2025 TSL. All rights reserved. | Redefining Fashion, One Thread at a Time.</p>
+    </div>
+  </footer>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyAKvcY-vZm-nQK5b5pz2KChLyhsEJ68XKs",
+      authDomain: "tsl-fashion.firebaseapp.com",
+      projectId: "tsl-fashion",
+      storageBucket: "tsl-fashion.firebasestorage.app",
+      messagingSenderId: "40913175672",
+      appId: "1:40913175672:web:9e82f77a2c86ac094a998d",
+      measurementId: "G-9XVTG3CNFD",
+    };
+    firebase.initializeApp(firebaseConfig);
+    // Comment out for production
+    // firebase.auth().useEmulator("http://localhost:9099");
+
+    const provider = new firebase.auth.GoogleAuthProvider();
+
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('login-email').value;
+      const password = document.getElementById('login-password').value;
+      try {
+        await firebase.auth().signInWithEmailAndPassword(email, password);
+        window.location.href = localStorage.getItem('redirectAfterLogin') || 'products.html';
+        localStorage.removeItem('redirectAfterLogin');
+      } catch (error) {
+        console.error('Login error:', error);
+        alert(`Login failed: ${error.message}`);
+      }
+    });
+
+    document.getElementById('google-signin').addEventListener('click', async () => {
+      try {
+        const result = await firebase.auth().signInWithPopup(provider);
+        console.log('Google Sign-In successful:', result.user);
+        window.location.href = localStorage.getItem('redirectAfterLogin') || 'products.html';
+        localStorage.removeItem('redirectAfterLogin');
+      } catch (error) {
+        console.error('Google Sign-In error:', error);
+        alert(`Google Sign-In failed: ${error.message}. Ensure popups are enabled and Google Sign-In is configured in Firebase.`);
+      }
+    });
+
+    const passwordInput = document.getElementById('login-password');
+    const passwordToggleIcon = document.querySelector('#login-form .password-toggle-icon i');
+
+    passwordToggleIcon.addEventListener('click', () => {
+      if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        passwordToggleIcon.classList.remove('fa-eye');
+        passwordToggleIcon.classList.add('fa-eye-slash');
+      } else {
+        passwordInput.type = 'password';
+        passwordToggleIcon.classList.remove('fa-eye-slash');
+        passwordToggleIcon.classList.add('fa-eye');
+      }
+    });
+  </script>
+  <script src="script.js"></script>
+</body>
+</html>
