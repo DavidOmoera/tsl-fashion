@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TSL - Order Confirmation</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+</head>
+
+<body>
+  <div class="cursor"></div>
+  <div class="cursor-follower"></div>
+  <nav>
+    <div class="nav-container">
+      <a href="index.html" class="logo">TSL</a>
+      <div class="country-selector">
+        <img id="country-flag" src="https://flagcdn.com/24x18/ng.png" alt="Country Flag">
+        <select id="country-select">
+          <option value="NG">Nigeria</option>
+          <option value="US">United States</option>
+          <option value="GB">United Kingdom</option>
+          <option value="CA">Canada</option>
+          <option value="AU">Australia</option>
+          <option value="FR">France</option>
+          <option value="DE">Germany</option>
+          <option value="JP">Japan</option>
+          <option value="CN">China</option>
+          <option value="BR">Brazil</option>
+          <option value="IN">India</option>
+          <option value="ZA">South Africa</option>
+          <option value="MX">Mexico</option>
+          <option value="ES">Spain</option>
+          <option value="IT">Italy</option>
+        </select>
+      </div>
+      <div class="menu-toggle">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+      <ul class="nav-links">
+        <li><a href="7garbs.html">7GARBS</a></li>
+        <li><a href="products.html">PRODUCTS</a></li>
+        <li><a href="collections.html">COLLECTIONS</a></li>
+        <li><a href="about.html">ABOUT</a></li>
+        <li><a href="contact.html">CONTACT</a></li>
+        <li><a href="#cart">CART (<span id="cart-count">0</span>)</a></li>
+      </ul>
+    </div>
+  </nav>
+  <section class="featured">
+    <h2 class="section-title fade-in">ORDER CONFIRMATION</h2>
+    <div class="featured-content">
+      <div class="featured-text fade-in" id="order-details">
+        <p>Loading order details...</p>
+      </div>
+    </div>
+  </section>
+  <footer>
+    <div class="footer-content">
+      <div class="footer-section">
+        <h3>PRODUCTS</h3>
+        <ul>
+          <li><a href="products.html">New Arrivals</a></li>
+          <li><a href="products.html">Best Sellers</a></li>
+          <li><a href="products.html">Sale Items</a></li>
+          <li><a href="products.html">Accessories</a></li>
+        </ul>
+      </div>
+      <div class="footer-section">
+        <h3>SUPPORT</h3>
+        <ul>
+          <li><a href="contact.html">Size Guide</a></li>
+          <li><a href="contact.html">Shipping Info</a></li>
+          <li><a href="contact.html">Returns</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+        </ul>
+      </div>
+      <div class="footer-section">
+        <h3>COMPANY</h3>
+        <ul>
+          <li><a href="about.html">About TSL</a></li>
+          <li><a href="about.html">Careers</a></li>
+          <li><a href="about.html">Press</a></li>
+          <li><a href="about.html">Sustainability</a></li>
+        </ul>
+      </div>
+      <div class="footer-section">
+        <h3>CONNECT</h3>
+        <ul>
+          <li><a href="https://instagram.com">Instagram</a></li>
+          <li><a href="https://twitter.com">Twitter</a></li>
+          <li><a href="https://facebook.com">Facebook</a></li>
+          <li><a href="https://youtube.com">YouTube</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2025 TSL. All rights reserved. | Redefining Fashion, One Thread at a Time.</p>
+    </div>
+  </footer>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyAKvcY-vZm-nQK5b5pz2KChLyhsEJ68XKs",
+      authDomain: "tsl-fashion.web.app",
+      projectId: "tsl-fashion",
+      storageBucket: "tsl-fashion.firebasestorage.app",
+      messagingSenderId: "40913175672",
+      appId: "1:40913175672:web:9e82f77a2c86ac094a998d",
+      measurementId: "G-9XVTG3CNFD",
+    };
+    firebase.initializeApp(firebaseConfig);
+    firebase.auth().useEmulator("http://localhost:9099");
+    const db = firebase.firestore();
+
+    async function loadOrderDetails() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const orderId = urlParams.get('orderId');
+      const status = urlParams.get('status');
+      const orderDetails = document.getElementById('order-details');
+
+      if (status === 'failed') {
+        orderDetails.innerHTML = '<p>Payment failed. Please try again or contact support.</p>';
+        return;
+      }
+
+      try {
+        const querySnapshot = await db.collection('orders').where('txRef', '==', orderId).get();
+        if (querySnapshot.empty) {
+          orderDetails.innerHTML = '<p>Order not found.</p>';
+          return;
+        }
+        const order = querySnapshot.docs[0].data();
+        orderDetails.innerHTML = `
+          <h2>Order #${order.txRef}</h2>
+          <p>Status: ${order.status}</p>
+          <p>Shipping: ${order.shippingStatus}</p>
+          <p>Total: ${order.amount} ${order.currency}</p>
+          <h3>Items:</h3>
+          ${order.items.map(item => `
+            <div class="cart-item">
+              <h3>${item.title}</h3>
+              <p>Quantity: ${item.quantity}</p>
+              <p>Price: $${(item.price * item.quantity).toFixed(2)}</p>
+            </div>
+          `).join('')}
+          <a href="track-order.html?orderId=${order.txRef}" class="hero-cta">Track Order</a>
+        `;
+      } catch (error) {
+        console.error('Error loading order:', error);
+        orderDetails.innerHTML = '<p>Error loading order details. Please try again.</p>';
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', loadOrderDetails);
+  </script>
+  <script src="script.js"></script>
+</body>
+
+</html>

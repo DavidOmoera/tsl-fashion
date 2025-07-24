@@ -1,13 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TSL - Products</title>
     <link rel="stylesheet" href="styles.css">
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js"></script>
+    <!-- Firebase SDKs (using compat versions for script tags) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 </head>
+
 <body>
     <div class="cursor"></div>
     <div class="cursor-follower"></div>
@@ -15,6 +19,36 @@
     <nav>
         <div class="nav-container">
             <a href="index.html" class="logo">TSL</a>
+            <div class="country-selector">
+                <img id="country-flag" src="https://flagcdn.com/24x18/ng.png" alt="Country Flag">
+                <select id="country-select">
+                    <option value="NG">Nigeria</option>
+                    <option value="US">United States</option>
+                    <option value="GB">United Kingdom</option>
+                    <option value="CA">Canada</option>
+                    <option value="AU">Australia</option>
+                    <option value="FR">France</option>
+                    <option value="DE">Germany</option>
+                    <option value="JP">Japan</option>
+                    <option value="CN">China</option>
+                    <option value="BR">Brazil</option>
+                    <option value="IN">India</option>
+                    <option value="ZA">South Africa</option>
+                    <option value="MX">Mexico</option>
+                    <option value="ES">Spain</option>
+                    <option value="IT">Italy</option>
+                </select>
+            </div>
+            <div class="auth-section">
+                <span id="user-email"></span>
+                <button id="login-button" class="add-to-cart">LOGIN</button>
+                <button id="logout-button" class="add-to-cart" style="display: none;">LOGOUT</button>
+            </div>
+            <div class="menu-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
             <ul class="nav-links">
                 <li><a href="7garbs.html">7GARBS</a></li>
                 <li><a href="products.html">PRODUCTS</a></li>
@@ -28,7 +62,9 @@
 
     <section class="products">
         <h2 class="section-title fade-in">ALL PRODUCTS</h2>
-        <div class="product-grid" id="product-grid"></div>
+        <div class="product-grid" id="product-grid">
+            <p>Loading products...</p>
+        </div>
     </section>
 
     <section id="cart" class="featured">
@@ -39,7 +75,8 @@
             </div>
             <div class="featured-image fade-in">
                 <div style="padding: 30px; width: 100%;">
-                    <h3 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 20px; color: #00ff88;">CART SUMMARY</h3>
+                    <h3 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 20px; color: #00ff88;">CART SUMMARY
+                    </h3>
                     <p>Total Items: <span id="cart-total-items">0</span></p>
                     <p>Total Price: $<span id="cart-total-price">0.00</span></p>
                     <button class="add-to-cart" id="checkout-button">CHECKOUT</button>
@@ -93,44 +130,67 @@
     </footer>
 
     <script>
-        // Firebase Configuration (Replace with your Firebase project config)
+        // Firebase Configuration
         const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_AUTH_DOMAIN",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_STORAGE_BUCKET",
-            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-            appId: "YOUR_APP_ID"
+            apiKey: "AIzaSyAKvcY-vZm-nQK5b5pz2KChLyhsEJ68XKs",
+            authDomain: "tsl-fashion.web.app",
+            projectId: "tsl-fashion",
+            storageBucket: "tsl-fashion.firebasestorage.app",
+            messagingSenderId: "40913175672",
+            appId: "1:40913175672:web:9e82f77a2c86ac094a998d",
+            measurementId: "G-9XVTG3CNFD"
         };
 
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
+
         const db = firebase.firestore();
+        const auth = firebase.auth();
 
         // Fetch and display products
         const productGrid = document.getElementById('product-grid');
         async function loadProducts() {
             try {
+                productGrid.innerHTML = '<p>Loading products...</p>';
                 const querySnapshot = await db.collection('products').get();
+                console.log('Number of products fetched:', querySnapshot.size);
+                if (querySnapshot.empty) {
+                    productGrid.innerHTML = '<p>No products found.</p>';
+                    return;
+                }
                 productGrid.innerHTML = '';
                 querySnapshot.forEach(doc => {
                     const product = doc.data();
+                    console.log('Product:', product);
+                    // Sanitize title and handle empty image
+                    const sanitizedTitle = product.title ? product.title.replace(/\n/g, '').trim() : 'Untitled Product';
+                    const imageUrl = product.image && product.image.trim() !== ''
+                        ? product.image
+                        : 'https://static.nike.com/a/images/c_limit,w_592,f_auto/t_product_v1/a256da75-9fc8-42d0-8ad1-3ab1a368a15a/M+NK+TCH+FLC+FZ+WR+HOODIE.png';
                     const productCard = `
                         <div class="product-card fade-in">
-                            <div class="product-image">${product.image}</div>
+                            <div class="product-image">
+                                <img src="${imageUrl}" alt="${sanitizedTitle}">
+                            </div>
                             <div class="product-info">
-                                <h3 class="product-title">${product.title}</h3>
-                                <p class="product-description">${product.description}</p>
-                                <div class="product-price">$${product.price.toFixed(2)}</div>
-                                <button class="add-to-cart" data-id="${doc.id}" data-title="${product.title}" data-price="${product.price}">ADD TO CART</button>
+                                <h3 class="product-title">${sanitizedTitle}</h3>
+                                <p class="product-description">${product.description || 'No description available'}</p>
+                                <div class="product-price">$${product.price ? product.price.toFixed(2) : '0.00'}</div>
+                                <button class="add-to-cart" data-id="${doc.id}" data-title="${sanitizedTitle}" data-price="${product.price || 0}">ADD TO CART</button>
                             </div>
                         </div>`;
                     productGrid.innerHTML += productCard;
+                    console.log('Added product card:', sanitizedTitle);
                 });
-                // Re-attach event listeners for new buttons
+                console.log('Product grid HTML:', productGrid.innerHTML);
+                // Force fade-in for testing
+                document.querySelectorAll('.product-card').forEach(card => {
+                    card.classList.add('visible');
+                });
                 attachCartListeners();
             } catch (error) {
                 console.error('Error loading products:', error);
+                productGrid.innerHTML = '<p>Error loading products. Please try again later.</p>';
             }
         }
 
@@ -143,17 +203,26 @@
 
         async function loadCart() {
             try {
-                const querySnapshot = await db.collection('cart').get();
+                const user = auth.currentUser;
+                if (!user) {
+                    cartItemsContainer.innerHTML = '<p>Please log in to view your cart.</p>';
+                    return;
+                }
+                const querySnapshot = await db.collection('users').doc(user.uid).collection('cart').get();
                 let items = [];
                 let totalPrice = 0;
                 let totalItems = 0;
-                querySnapshot.forEach(doc => {
+                for (const doc of querySnapshot.docs) {
                     const item = doc.data();
-                    items.push({ id: doc.id, ...item });
-                    totalPrice += item.price * item.quantity;
-                    totalItems += item.quantity;
-                });
-
+                    const productRef = await db.collection('products').doc(doc.id).get();
+                    if (productRef.exists) {
+                        items.push({ id: doc.id, ...item });
+                        totalPrice += item.price * item.quantity;
+                        totalItems += item.quantity;
+                    } else {
+                        await db.collection('users').doc(user.uid).collection('cart').doc(doc.id).delete();
+                    }
+                }
                 if (items.length === 0) {
                     cartItemsContainer.innerHTML = '<p>Your cart is empty.</p>';
                 } else {
@@ -162,29 +231,36 @@
                             <h3>${item.title}</h3>
                             <p>Quantity: ${item.quantity}</p>
                             <p>Price: $${(item.price * item.quantity).toFixed(2)}</p>
+                            <button class="remove-from-cart" data-id="${item.id}">Remove</button>
                         </div>
                     `).join('');
+                    attachRemoveListeners();
                 }
                 cartCount.textContent = totalItems;
                 cartTotalItems.textContent = totalItems;
                 cartTotalPrice.textContent = totalPrice.toFixed(2);
             } catch (error) {
                 console.error('Error loading cart:', error);
+                cartItemsContainer.innerHTML = '<p>Error loading cart. Please try again.</p>';
             }
         }
 
         function attachCartListeners() {
             document.querySelectorAll('.add-to-cart').forEach(button => {
-                button.addEventListener('click', async function() {
+                button.addEventListener('click', async function () {
+                    const user = auth.currentUser;
+                    if (!user) {
+                        localStorage.setItem('redirectAfterLogin', window.location.pathname);
+                        window.location.href = 'login.html';
+                        return;
+                    }
                     const productId = this.getAttribute('data-id');
                     const title = this.getAttribute('data-title');
                     const price = parseFloat(this.getAttribute('data-price'));
 
-                    // Visual feedback
                     this.style.transform = 'scale(0.95)';
                     this.textContent = 'ADDED!';
                     this.style.background = 'linear-gradient(45deg, #00ff88, #00ff88)';
-
                     setTimeout(() => {
                         this.style.transform = 'scale(1)';
                         this.textContent = 'ADD TO CART';
@@ -192,8 +268,7 @@
                     }, 1000);
 
                     try {
-                        // Check if item exists in cart
-                        const cartRef = db.collection('cart').doc(productId);
+                        const cartRef = db.collection('users').doc(user.uid).collection('cart').doc(productId);
                         const doc = await cartRef.get();
                         if (doc.exists) {
                             await cartRef.update({
@@ -209,22 +284,93 @@
                         await loadCart();
                     } catch (error) {
                         console.error('Error adding to cart:', error);
+                        alert('Failed to add to cart: ' + error.message);
+                    }
+                });
+            });
+        }
+
+        function attachRemoveListeners() {
+            document.querySelectorAll('.remove-from-cart').forEach(button => {
+                button.addEventListener('click', async function () {
+                    const user = auth.currentUser;
+                    if (!user) return;
+                    const itemId = this.getAttribute('data-id');
+                    try {
+                        await db.collection('users').doc(user.uid).collection('cart').doc(itemId).delete();
+                        await loadCart();
+                    } catch (error) {
+                        console.error('Error removing item from cart:', error);
+                        alert('Failed to remove item: ' + error.message);
                     }
                 });
             });
         }
 
         checkoutButton.addEventListener('click', async () => {
-            alert('Checkout functionality not implemented. This is a demo.');
-            // In a real app, this would redirect to a payment gateway
+            try {
+                const user = auth.currentUser;
+                if (!user) {
+                    localStorage.setItem('redirectAfterLogin', window.location.pathname);
+                    window.location.href = 'login.html';
+                    return;
+                }
+                const cartItems = await getCartItemsForCheckout();
+                if (cartItems.length === 0) {
+                    alert('Your cart is empty.');
+                    return;
+                }
+                const totalAmount = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+                const response = await fetch('https://your-backend-url/create-flutterwave-payment', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        amount: totalAmount,
+                        currency: 'NGN',
+                        redirect_url: `${window.location.origin}/verify-payment`,
+                        customer: {
+                            email: user.email || 'customer@example.com',
+                            phonenumber: '08012345678',
+                            name: user.displayName || 'Customer Name'
+                        },
+                        meta: { cart: cartItems }
+                    })
+                });
+                const result = await response.json();
+                if (result.status === 'success' && result.data.link) {
+                    window.location.href = result.data.link;
+                } else {
+                    alert('Failed to initiate payment. Please try again.');
+                }
+            } catch (error) {
+                console.error('Error during checkout:', error);
+                alert('Checkout failed: ' + error.message);
+            }
         });
 
-        // Load products and cart on page load
-        loadProducts();
-        loadCart();
+        async function getCartItemsForCheckout() {
+            const user = auth.currentUser;
+            if (!user) return [];
+            const querySnapshot = await db.collection('users').doc(user.uid).collection('cart').get();
+            return querySnapshot.docs.map(doc => ({
+                id: doc.id,
+                title: doc.data().title,
+                price: doc.data().price,
+                quantity: doc.data().quantity
+            }));
+        }
 
-        // Include existing script.js for other interactions
+        // Load products and cart on page load
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                loadCart();
+            } else {
+                cartItemsContainer.innerHTML = '<p>Please log in to view your cart.</p>';
+            }
+        });
+        loadProducts();
     </script>
     <script src="script.js"></script>
 </body>
+
 </html>
