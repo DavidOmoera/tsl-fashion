@@ -6,6 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TSL - The Future of Fashion</title>
     <link rel="stylesheet" href="styles.css">
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 </head>
 
 <body>
@@ -14,13 +18,44 @@
 
     <nav>
         <div class="nav-container">
-            <div class="logo">TSL</div>
+            <a href="index.html" class="logo">TSL</a>
+            <div class="country-selector">
+                <img id="country-flag" src="https://flagcdn.com/16x12/ng.png" alt="Country Flag">
+                <select id="country-select">
+                    <option value="NG">Nigeria</option>
+                    <option value="US">United States</option>
+                    <option value="GB">United Kingdom</option>
+                    <option value="CA">Canada</option>
+                    <option value="AU">Australia</option>
+                    <option value="FR">France</option>
+                    <option value="DE">Germany</option>
+                    <option value="JP">Japan</option>
+                    <option value="CN">China</option>
+                    <option value="BR">Brazil</option>
+                    <option value="IN">India</option>
+                    <option value="ZA">South Africa</option>
+                    <option value="MX">Mexico</option>
+                    <option value="ES">Spain</option>
+                    <option value="IT">Italy</option>
+                </select>
+            </div>
+            <div class="auth-section">
+                <span id="user-email"></span>
+                <button id="login-button" class="add-to-cart">LOGIN</button>
+                <button id="logout-button" class="add-to-cart" style="display: none;">LOGOUT</button>
+            </div>
+            <div class="menu-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
             <ul class="nav-links">
                 <li><a href="7garbs.html">7GARBS</a></li>
                 <li><a href="products.html">PRODUCTS</a></li>
                 <li><a href="collections.html">COLLECTIONS</a></li>
                 <li><a href="about.html">ABOUT</a></li>
                 <li><a href="contact.html">CONTACT</a></li>
+                <li><a href="#cart">CART (<span id="cart-count">0</span>)</a></li>
             </ul>
         </div>
     </nav>
@@ -41,67 +76,8 @@
 
     <section id="products" class="products">
         <h2 class="section-title fade-in">FEATURED PRODUCTS</h2>
-        <div class="product-grid">
-            <div class="product-card fade-in">
-                <div class="product-image">Premium Hoodie</div>
-                <div class="product-info">
-                    <h3 class="product-title">QUANTUM HOODIE</h3>
-                    <p class="product-description">Ultra-soft premium cotton blend with cutting-edge design elements and
-                        revolutionary comfort technology.</p>
-                    <div class="product-price">$89.99</div>
-                    <button class="add-to-cart">ADD TO CART</button>
-                </div>
-            </div>
-            <div class="product-card fade-in">
-                <div class="product-image">Designer Jacket</div>
-                <div class="product-info">
-                    <h3 class="product-title">NEXUS JACKET</h3>
-                    <p class="product-description">Weather-resistant outer shell with innovative thermal regulation and
-                        urban aesthetic appeal.</p>
-                    <div class="product-price">$149.99</div>
-                    <button class="add-to-cart">ADD TO CART</button>
-                </div>
-            </div>
-            <div class="product-card fade-in">
-                <div class="product-image">Streetwear Tee</div>
-                <div class="product-info">
-                    <h3 class="product-title">PULSE T-SHIRT</h3>
-                    <p class="product-description">Minimalist design meets maximum impact. Sustainable materials crafted
-                        for the modern individual.</p>
-                    <div class="product-price">$34.99</div>
-                    <button class="add-to-cart">ADD TO CART</button>
-                </div>
-            </div>
-            <div class="product-card fade-in">
-                <div class="product-image">Cargo Pants</div>
-                <div class="product-info">
-                    <h3 class="product-title">MATRIX CARGO</h3>
-                    <p class="product-description">Tactical-inspired design with modern functionality. Multiple pockets
-                        and adjustable fit system.</p>
-                    <div class="product-price">$79.99</div>
-                    <button class="add-to-cart">ADD TO CART</button>
-                </div>
-            </div>
-            <div class="product-card fade-in">
-                <div class="product-image">Sneakers</div>
-                <div class="product-info">
-                    <h3 class="product-title">VELOCITY SNEAKERS</h3>
-                    <p class="product-description">Next-generation footwear with advanced cushioning technology and
-                        sleek contemporary styling.</p>
-                    <div class="product-price">$129.99</div>
-                    <button class="add-to-cart">ADD TO CART</button>
-                </div>
-            </div>
-            <div class="product-card fade-in">
-                <div class="product-image">Accessories</div>
-                <div class="product-info">
-                    <h3 class="product-title">TECH BACKPACK</h3>
-                    <p class="product-description">Multi-functional urban carry solution with integrated charging ports
-                        and weather protection.</p>
-                    <div class="product-price">$99.99</div>
-                    <button class="add-to-cart">ADD TO CART</button>
-                </div>
-            </div>
+        <div class="product-grid" id="product-grid">
+            <p>Loading products...</p>
         </div>
     </section>
 
@@ -165,6 +141,162 @@
         </div>
     </footer>
 
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAKvcY-vZm-nQK5b5pz2KChLyhsEJ68XKs",
+            authDomain: "tsl-fashion.web.app",
+            projectId: "tsl-fashion",
+            storageBucket: "tsl-fashion.firebasestorage.app",
+            messagingSenderId: "40913175672",
+            appId: "1:40913175672:web:9e82f77a2c86ac094a998d",
+            measurementId: "G-9XVTG3CNFD"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+
+        // Fetch and display featured products
+        const productGrid = document.getElementById('product-grid');
+        async function loadProducts() {
+            try {
+                productGrid.innerHTML = '<p>Loading products...</p>';
+                const querySnapshot = await db.collection('products').get();
+                console.log('Number of products fetched:', querySnapshot.size);
+                if (querySnapshot.empty) {
+                    productGrid.innerHTML = '<p>No products found.</p>';
+                    return;
+                }
+                productGrid.innerHTML = '';
+                querySnapshot.forEach(doc => {
+                    const product = doc.data();
+                    console.log('Product:', product);
+                    // Sanitize title and handle empty image
+                    const sanitizedTitle = product.title ? product.title.replace(/\n/g, '').trim() : 'Untitled Product';
+                    const imageUrl = product.image && product.image.trim() !== ''
+                        ? product.image
+                        : 'https://static.nike.com/a/images/c_limit,w_592,f_auto/t_product_v1/a256da75-9fc8-42d0-8ad1-3ab1a368a15a/M+NK+TCH+FLC+FZ+WR+HOODIE.png';
+                    const productCard = `
+                        <div class="product-card fade-in">
+                            <div class="product-image">
+                                <img src="${imageUrl}" alt="${sanitizedTitle}">
+                            </div>
+                            <div class="product-info">
+                                <h3 class="product-title">${sanitizedTitle}</h3>
+                                <p class="product-description">${product.description || 'No description available'}</p>
+                                <div class="product-price">$${product.price ? product.price.toFixed(2) : '0.00'}</div>
+                                <button class="add-to-cart" data-id="${doc.id}" data-title="${sanitizedTitle}" data-price="${product.price || 0}">ADD TO CART</button>
+                            </div>
+                        </div>`;
+                    productGrid.innerHTML += productCard;
+                    console.log('Added product card:', sanitizedTitle);
+                });
+                console.log('Product grid HTML:', productGrid.innerHTML);
+                // Force fade-in for testing
+                document.querySelectorAll('.product-card').forEach(card => {
+                    card.classList.add('visible');
+                });
+                attachCartListeners();
+            } catch (error) {
+                console.error('Error loading products:', error);
+                productGrid.innerHTML = '<p>Error loading products. Please try again later.</p>';
+            }
+        }
+
+        // Cart functionality
+        function attachCartListeners() {
+            document.querySelectorAll('.add-to-cart').forEach(button => {
+                button.addEventListener('click', async function () {
+                    const user = auth.currentUser;
+                    if (!user) {
+                        localStorage.setItem('redirectAfterLogin', window.location.pathname);
+                        window.location.href = 'login.html';
+                        return;
+                    }
+                    const productId = this.getAttribute('data-id');
+                    const title = this.getAttribute('data-title');
+                    const price = parseFloat(this.getAttribute('data-price'));
+
+                    this.style.transform = 'scale(0.95)';
+                    this.textContent = 'ADDED!';
+                    this.style.background = 'linear-gradient(45deg, #00ff88, #00ff88)';
+                    setTimeout(() => {
+                        this.style.transform = 'scale(1)';
+                        this.textContent = 'ADD TO CART';
+                        this.style.background = 'linear-gradient(45deg, #00ff88, #0088ff)';
+                    }, 1000);
+
+                    try {
+                        const cartRef = db.collection('users').doc(user.uid).collection('cart').doc(productId);
+                        const doc = await cartRef.get();
+                        if (doc.exists) {
+                            await cartRef.update({
+                                quantity: firebase.firestore.FieldValue.increment(1)
+                            });
+                        } else {
+                            await cartRef.set({
+                                title: title,
+                                price: price,
+                                quantity: 1
+                            });
+                        }
+                        // Update cart count
+                        const cartSnapshot = await db.collection('users').doc(user.uid).collection('cart').get();
+                        const totalItems = cartSnapshot.docs.reduce((sum, doc) => sum + doc.data().quantity, 0);
+                        document.getElementById('cart-count').textContent = totalItems;
+                    } catch (error) {
+                        console.error('Error adding to cart:', error);
+                        alert('Failed to add to cart: ' + error.message);
+                    }
+                });
+            });
+        }
+
+        // Auth state handling
+        auth.onAuthStateChanged((user) => {
+            const userEmail = document.getElementById('user-email');
+            const loginButton = document.getElementById('login-button');
+            const logoutButton = document.getElementById('logout-button');
+            if (user) {
+                userEmail.textContent = user.email || 'User';
+                loginButton.style.display = 'none';
+                logoutButton.style.display = 'inline-block';
+                // Update cart count
+                db.collection('users').doc(user.uid).collection('cart').get()
+                    .then(snapshot => {
+                        const totalItems = snapshot.docs.reduce((sum, doc) => sum + doc.data().quantity, 0);
+                        document.getElementById('cart-count').textContent = totalItems;
+                    })
+                    .catch(error => console.error('Error updating cart count:', error));
+            } else {
+                userEmail.textContent = '';
+                loginButton.style.display = 'inline-block';
+                logoutButton.style.display = 'none';
+                document.getElementById('cart-count').textContent = '0';
+            }
+        });
+
+        // Login/Logout button handlers
+        document.getElementById('login-button').addEventListener('click', () => {
+            localStorage.setItem('redirectAfterLogin', window.location.pathname);
+            window.location.href = 'login.html';
+        });
+
+        document.getElementById('logout-button').addEventListener('click', () => {
+            auth.signOut().then(() => {
+                window.location.href = 'index.html';
+            }).catch(error => {
+                console.error('Error signing out:', error);
+                alert('Failed to sign out: ' + error.message);
+            });
+        });
+
+        // Load products on page load
+        loadProducts();
+    </script>
     <script src="script.js"></script>
 </body>
 
